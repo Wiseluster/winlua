@@ -16,7 +16,7 @@
 
 typedef char *const args_t[];
 
-static void safe_execute(const char *prog, args_t args)
+static void execute(const char *prog, args_t args)
 {
 	pid_t pid;
 	int st;
@@ -46,13 +46,13 @@ int main(void)
 	pipe(fd);
 	dup2(fd[1], STDOUT_FILENO);
 
-	safe_execute(LUA_PATH, lua_args);
+	execute(LUA_PATH, lua_args);
 
 	read(fd[0], buf, LINE_MAX);
 	close(fd[0]);
 	close(fd[1]);
 
-	safe_execute(MINTTY_PATH, mintty_args);
+	execute(MINTTY_PATH, mintty_args);
 
 	return 0;
 }
