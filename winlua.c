@@ -2,17 +2,18 @@
 #error Please use gcc for cygwin or msys2 to build this program.
 #endif
 
-#define PREFIX "/usr/bin/"
-#define LUA "lua"
-#define MINTTY "mintty"
-#define LUA_PATH PREFIX LUA
-#define MINTTY_PATH PREFIX MINTTY
-
+#include <errno.h>
 #include <limits.h>
+#include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
+
+#define ERROR(M, ...) fprintf(stderr, "ERROR: " M, __VA_ARGS__)
+#define STD_PREFIX(S) "/usr/bin/" S
+#define LUA "lua"
+#define MINTTY "mintty"
+#define LUA_PATH STD_PREFIX(LUA)
+#define MINTTY_PATH STD_PREFIX(MINTTY)
 
 typedef char *const args_t[];
 
@@ -23,7 +24,7 @@ static void execute(const char *prog, args_t args)
 	
 	if (access(prog, X_OK))
 	{
-		fprintf(stderr, "Cannot find program: %s\n", prog);
+		ERROR("cannot execute program: %s\n", prog);
 		_exit(ENOENT);
 	}
 
@@ -32,8 +33,11 @@ static void execute(const char *prog, args_t args)
 
 	waitpid(pid, &st, 0);
 
-	if (!WIFEXITED(st))
-		_exit(WEXITSTATUS(st));
+	if ((st = WEXITSTATUS(st)))
+	{
+		ERROR("program %s exited with value: %d\n", prog, st);
+		_exit(st);
+	}
 }
 
 int main(void)
