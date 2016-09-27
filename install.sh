@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ winlua.c -nt winlua.exe ] && \
+[ winlua.c -ot winlua.exe ] || \
 ./build.sh && \
 [ -z "${prefix}" ] && \
 prefix="/usr" && \

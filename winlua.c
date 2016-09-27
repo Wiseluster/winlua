@@ -41,18 +41,24 @@ static void execute(const char *prog, const char *const *args)
 int main(void)
 {
 	char buf[LINE_MAX];
-	int fd[2];
+	int fd[3];
+	ssize_t siz;
 	const char *lua_args[] = {LUA, "-v", NULL},
 	           *mintty_args[] = {MINTTY, "-t", buf, LUA_PATH, NULL};
 
 	pipe(fd);
+	dup2(STDOUT_FILENO, fd[2]);
 	dup2(fd[1], STDOUT_FILENO);
+	close(fd[1]);
 
 	execute(LUA_PATH, lua_args);
 
-	read(fd[0], buf, LINE_MAX);
+	if ((siz = read(fd[0], buf, LINE_MAX)) > 0)
+		buf[siz - 1] = '\0';
+
 	close(fd[0]);
-	close(fd[1]);
+	dup2(fd[2], STDOUT_FILENO);
+	close(fd[2]);
 
 	execute(MINTTY_PATH, mintty_args);
 
