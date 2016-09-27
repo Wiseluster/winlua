@@ -15,9 +15,7 @@
 #define LUA_PATH STD_PREFIX(LUA)
 #define MINTTY_PATH STD_PREFIX(MINTTY)
 
-typedef char *const args_t[];
-
-static void execute(const char *prog, args_t args)
+static void execute(const char *prog, const char *const *args)
 {
 	pid_t pid;
 	int st;
@@ -29,7 +27,7 @@ static void execute(const char *prog, args_t args)
 	}
 
 	if (!(pid = fork()))
-		execvp(prog, args);
+		execvp(prog, (char *const *) args);
 
 	waitpid(pid, &st, 0);
 
@@ -44,8 +42,8 @@ int main(void)
 {
 	char buf[LINE_MAX];
 	int fd[2];
-	args_t lua_args = {LUA, "-v", NULL},
-	       mintty_args = {MINTTY, "-t", buf, LUA_PATH, NULL};
+	const char *lua_args[] = {LUA, "-v", NULL},
+	           *mintty_args[] = {MINTTY, "-t", buf, LUA_PATH, NULL};
 
 	pipe(fd);
 	dup2(fd[1], STDOUT_FILENO);
