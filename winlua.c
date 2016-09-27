@@ -1,5 +1,5 @@
 #if !defined(__GNUC__) || !defined(__CYGWIN__) && !defined(__MSYS__)
-#error Please use gcc for cygwin or msys2 to build this program.
+#error Please use gcc for cygwin or msys to build this program.
 #endif
 
 #include <errno.h>
