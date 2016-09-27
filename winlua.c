@@ -8,12 +8,12 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define ERROR(M, ...) fprintf(stderr, "ERROR: " M, __VA_ARGS__)
-#define STD_PREFIX(S) "/usr/bin/" S
+#define BINDIR "/usr/bin"
+#define ERROR(M, ...) fprintf(stderr, "ERROR: " M, ##__VA_ARGS__)
 #define LUA "lua"
+#define LUA_PATH BINDIR"/"LUA
 #define MINTTY "mintty"
-#define LUA_PATH STD_PREFIX(LUA)
-#define MINTTY_PATH STD_PREFIX(MINTTY)
+#define MINTTY_PATH BINDIR"/"MINTTY
 
 static void execute(const char *prog, const char *const *args)
 {
@@ -53,8 +53,7 @@ int main(void)
 
 	execute(LUA_PATH, lua_args);
 
-	if ((siz = read(fd[0], buf, LINE_MAX)) > 0)
-		buf[siz - 1] = '\0';
+	buf[(siz = read(fd[0], buf, LINE_MAX)) > 0 ? siz - 1 : 0] = '\0';
 
 	close(fd[0]);
 	dup2(fd[2], STDOUT_FILENO);
